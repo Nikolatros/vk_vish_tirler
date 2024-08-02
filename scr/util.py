@@ -1,28 +1,49 @@
 import requests
+import pandas as pd
+from os import getenv
+from dotenv import load_dotenv
+import pprint
 
 
-raise RuntimeError('UHODY')
+# Load secret variables
+load_dotenv()
+TOKEN_USER = getenv('USER_TOKEN')
+OWNER_ID = getenv('OWNER_ID')
+VERSION = getenv('VERSION')
 
-# переменные 
-TOKEN_USER = #ваш токен
-VERSION = #версися api vk
-DOMAIN =  #ваш domain
+# Check that API variables is presence
+assert all([TOKEN_USER, OWNER_ID, VERSION])
 
-# через api vk вызываем статистику постов
-response = requests.get('https://api.vk.com/method/wall.get',
-params={'access_token': TOKEN_USER,
+# GET some posts
+response = requests.get(
+    url='https://api.vk.com/method/wall.get',
+    params={
+        'access_token': TOKEN_USER,
+        'owner_id': OWNER_ID,
         'v': VERSION,
-        'domain': DOMAIN,
-        'count': 10,
-        'filter': str('owner')})
+        'count': 2,
+        'filter': 'owner'
+    }
+)
 
-data = response.json()['response']['items']
+data_raw = pd.DataFrame(response.json()['response']['items'])
 
-response = requests.get('https://api.vk.com/method/wall.get',
-params={'access_token': TOKEN_USER,
-        'v': VERSION,
-        'owner_id': # ваш id_owner,
-        'post_ids': post_id})
+for column in ['likes', 'comments', 'reposts', 'views']:
+    data_raw[column + 'count'] = data_raw[column].apply(lambda x: x['count'])
 
+data_raw[['text', 'post_type']] = data_raw[['text', 'post_type']].astype('string')
 
-print(requests.get())
+columns = [
+    'id',
+    'date',
+    'text',
+    'comments_count',
+    'likes_count',
+    'reposts_count',
+    'views_count',
+    'post_type'
+]
+data = data_raw[columns]
+
+# data.info()
+pprint.pprint(data.iloc[:2].to_dict())
