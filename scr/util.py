@@ -3,6 +3,7 @@ import pandas as pd
 from os import getenv
 from dotenv import load_dotenv
 import pprint
+import psycopg2
 
 
 # Load secret variables
@@ -47,3 +48,10 @@ data = data_raw[columns]
 
 # data.info()
 pprint.pprint(data.iloc[:2].to_dict())
+print('\n===================================\n')
+conn = psycopg2.connect(dbname='database', user='db_user', 
+                        password='mypassword', host='localhost')
+cursor = conn.cursor()
+print('GET CONNECTION TO DATABASE!!')
+cursor.close()
+conn.close()
