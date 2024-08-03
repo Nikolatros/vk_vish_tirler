@@ -29,10 +29,11 @@ response = requests.get(
         'filter': 'owner'
     }
 )
+
 data_raw = pd.DataFrame(response.json()['response']['items'])
 
 for column in ['likes', 'comments', 'reposts', 'views']:
-    data_raw[column + 'count'] = data_raw[column].apply(lambda x: x['count'])
+    data_raw[column + '_count'] = data_raw[column].apply(lambda x: x['count'])
 
 data_raw[['text', 'post_type']] = data_raw[['text', 'post_type']].astype('string')
 
@@ -54,9 +55,20 @@ print('\n===================================\n')
 conn = psycopg2.connect(
     dbname=POSTGRES_DB,
     user=POSTGRES_USER,
-    password=POSTGRES_PASSWORD
+    password=POSTGRES_PASSWORD,
+    host='db'
 )
-cursor = conn.cursor()
+cur = conn.cursor()
 print('GET CONNECTION TO DATABASE!!')
-cursor.close()
+
+cur.execute("""
+    CREATE TABLE IF NOT EXISTS vish_posts_text (
+        id SERIAL PRIMARY KEY,
+        title TEXT
+    )
+""")
+
+conn.commit()
+
+cur.close()
 conn.close()
