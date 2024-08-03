@@ -11,6 +11,9 @@ load_dotenv()
 TOKEN_USER = getenv('USER_TOKEN')
 OWNER_ID = getenv('OWNER_ID')
 VERSION = getenv('VERSION')
+POSTGRES_USER = getenv('POSTGRES_USER')
+POSTGRES_PASSWORD = getenv('POSTGRES_PASSWORD')
+POSTGRES_DB = getenv('POSTGRES_DB')
 
 # Check that API variables is presence
 assert all([TOKEN_USER, OWNER_ID, VERSION])
@@ -26,7 +29,6 @@ response = requests.get(
         'filter': 'owner'
     }
 )
-
 data_raw = pd.DataFrame(response.json()['response']['items'])
 
 for column in ['likes', 'comments', 'reposts', 'views']:
@@ -49,8 +51,11 @@ data = data_raw[columns]
 # data.info()
 pprint.pprint(data.iloc[:2].to_dict())
 print('\n===================================\n')
-conn = psycopg2.connect(dbname='database', user='db_user', 
-                        password='mypassword', host='localhost')
+conn = psycopg2.connect(
+    dbname=POSTGRES_DB,
+    user=POSTGRES_USER,
+    password=POSTGRES_PASSWORD
+)
 cursor = conn.cursor()
 print('GET CONNECTION TO DATABASE!!')
 cursor.close()

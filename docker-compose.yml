@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # Сервис для PostgreSQL
+  db:
+    image: postgres # имя образа postgres
+    env_file:
+      - db.env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Сервис для приложения
+  tirler:
+    build: .
+    env_file: .env
+    depends_on:
+      - db
+    command: python3 scr/util.py  # Команда для запуска твоего приложения
+
+volumes:
+  db_data:
