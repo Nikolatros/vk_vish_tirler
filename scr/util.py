@@ -2,8 +2,8 @@ import requests
 import pandas as pd
 from os import getenv
 from dotenv import load_dotenv
-import pprint
 import psycopg2
+import time
 
 
 # Load secret variables
@@ -28,14 +28,22 @@ response = requests.get(
         'count': 2,
         'filter': 'owner'
     }
-)
-
-data_raw = pd.DataFrame(response.json()['response']['items'])
+).json()
+print(response)
+raise 
+try:
+    data_raw = pd.DataFrame(response['response']['items'])
+except KeyError:
+    print(response['error_code'])
+    print(response['error_msg'])
+    raise RuntimeError
 
 for column in ['likes', 'comments', 'reposts', 'views']:
     data_raw[column + '_count'] = data_raw[column].apply(lambda x: x['count'])
 
-data_raw[['text', 'post_type']] = data_raw[['text', 'post_type']].astype('string')
+data_raw[['text', 'post_type']] = (
+    data_raw[['text', 'post_type']].astype('string')
+)
 
 columns = [
     'id',
@@ -49,17 +57,15 @@ columns = [
 ]
 data = data_raw[columns]
 
-# data.info()
-pprint.pprint(data.iloc[:2].to_dict())
-print('\n===================================\n')
 conn = psycopg2.connect(
     dbname=POSTGRES_DB,
     user=POSTGRES_USER,
     password=POSTGRES_PASSWORD,
     host='db'
 )
+
 cur = conn.cursor()
-print('GET CONNECTION TO DATABASE!!')
+print(time.localtime(), 'GET CONNECTION TO DATABASE!!')
 
 cur.execute("""
     CREATE TABLE IF NOT EXISTS vish_posts_text (
