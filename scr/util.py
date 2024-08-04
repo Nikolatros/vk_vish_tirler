@@ -1,9 +1,9 @@
 import requests
+import psycopg2
+import time
 import pandas as pd
 from os import getenv
 from dotenv import load_dotenv
-import psycopg2
-import time
 
 
 # Load secret variables
@@ -14,9 +14,6 @@ VERSION = getenv('VERSION')
 POSTGRES_USER = getenv('POSTGRES_USER')
 POSTGRES_PASSWORD = getenv('POSTGRES_PASSWORD')
 POSTGRES_DB = getenv('POSTGRES_DB')
-
-# Check that API variables is presence
-assert all([TOKEN_USER, OWNER_ID, VERSION])
 
 # GET some posts
 response = requests.get(
@@ -29,20 +26,30 @@ response = requests.get(
         'filter': 'owner'
     }
 ).json()
+
+# Check that response is valid data with posts
 try:
     data_raw = pd.DataFrame(response['response']['items'])
-except KeyError:
-    print(response['error_code'])
-    print(response['error_msg'])
-    raise RuntimeError
+except KeyError as error:
+    error_info = response['error']
+    print(f'{error=}')
+    print(f'{error_info['error_code']=}')
+    print(f'{error_info['error_msg']=}')
+    exit()
 
+# Unpack dicts in columns
 for column in ['likes', 'comments', 'reposts', 'views']:
     data_raw[column + '_count'] = data_raw[column].apply(lambda x: x['count'])
 
+# Convert unix-date to datetime
+data_raw['date'] = pd.to_datetime(data_raw['date'], unit='s')
+
+# Set datatype to columns with text
 data_raw[['text', 'post_type']] = (
     data_raw[['text', 'post_type']].astype('string')
 )
 
+# Columns that will be written to database
 columns = [
     'id',
     'date',
@@ -64,13 +71,6 @@ conn = psycopg2.connect(
 
 cur = conn.cursor()
 print(time.localtime(), 'GET CONNECTION TO DATABASE!!')
-
-cur.execute("""
-    CREATE TABLE IF NOT EXISTS vish_posts_text (
-        id SERIAL PRIMARY KEY,
-        title TEXT
-    )
-""")
 
 conn.commit()
 
