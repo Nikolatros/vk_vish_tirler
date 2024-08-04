@@ -29,8 +29,6 @@ response = requests.get(
         'filter': 'owner'
     }
 ).json()
-print(response)
-raise 
 try:
     data_raw = pd.DataFrame(response['response']['items'])
 except KeyError:
