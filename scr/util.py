@@ -1,19 +1,12 @@
-import requests
-import psycopg2
-import time
-import pandas as pd
-from os import getenv
-from dotenv import load_dotenv
+insert_query_vish_posts_text = '''
+INSERT INTO vish_posts_text (id, text) 
+VALUES (%s, %s)
+'''
 
-
-# Load secret variables
-load_dotenv()
-TOKEN_USER = getenv('USER_TOKEN')
-OWNER_ID = getenv('OWNER_ID')
-VERSION = getenv('VERSION')
-POSTGRES_USER = getenv('POSTGRES_USER')
-POSTGRES_PASSWORD = getenv('POSTGRES_PASSWORD')
-POSTGRES_DB = getenv('POSTGRES_DB')
+insert_query_vish_posts_stat = '''
+INSERT INTO vish_posts_text (id, date, comments_count, likes_count, reposts_count, views_count, post_type) 
+VALUES (%s, %s, %s, %s, %s, %s, %s)
+'''
 
 # GET some posts
 response = requests.get(
@@ -22,6 +15,7 @@ response = requests.get(
         'access_token': TOKEN_USER,
         'owner_id': OWNER_ID,
         'v': VERSION,
+        'offset': 0,
         'count': 2,
         'filter': 'owner'
     }
@@ -32,10 +26,8 @@ try:
     data_raw = pd.DataFrame(response['response']['items'])
 except KeyError as error:
     error_info = response['error']
-    print(f'{error=}')
     print(f'{error_info['error_code']=}')
-    print(f'{error_info['error_msg']=}')
-    exit()
+    raise AssertionError(error_info['error_msg'])
 
 # Unpack dicts in columns
 for column in ['likes', 'comments', 'reposts', 'views']:
@@ -62,15 +54,12 @@ columns = [
 ]
 data = data_raw[columns]
 
-conn = psycopg2.connect(
-    dbname=POSTGRES_DB,
-    user=POSTGRES_USER,
-    password=POSTGRES_PASSWORD,
-    host='db'
-)
+
 
 cur = conn.cursor()
-print(time.localtime(), 'GET CONNECTION TO DATABASE!!')
+print('GET CONNECTION TO DATABASE!!')
+
+data[['id', 'text']].to_sql('vish_posts_text', con=conn, if_exists='append', index=False)
 
 conn.commit()
 
