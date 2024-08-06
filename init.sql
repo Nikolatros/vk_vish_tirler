@@ -1,10 +1,6 @@
-CREATE TABLE IF NOT EXISTS vish_posts_text (
-        id SERIAL PRIMARY KEY,
-        title VARCHAR
-);
-
-CREATE TABLE IF NOT EXISTS vish_posts_stat (
+CREATE TABLE IF NOT EXISTS vish_posts (
     id SERIAL PRIMARY KEY,
+    title VARCHAR,
     date TIMESTAMP,
     comments_count SMALLINT,
     likes_count SMALLINT,

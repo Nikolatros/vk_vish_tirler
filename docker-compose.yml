@@ -1,3 +1,5 @@
+version: 3
+
 name: vish_tirler
 
 services:
@@ -29,7 +31,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: python3 scr/util.py  # Команда для запуска твоего приложения
+    command: python3 scr/main.py  # Команда для запуска твоего приложения
 
 volumes:
   db_data:
