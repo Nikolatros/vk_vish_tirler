@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS vish_posts (
     id SERIAL PRIMARY KEY,
-    title VARCHAR,
+    text VARCHAR,
     date TIMESTAMP,
     comments_count SMALLINT,
     likes_count SMALLINT,

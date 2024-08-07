@@ -36,7 +36,8 @@ class Parser:
         except KeyError:
             error_info = response["error"]
             print(f"{error_info['error_code']=}")
-            raise AssertionError(error_info["error_msg"])
+            print(f"{error_info["error_msg"]=}")
+            raise AssertionError()
 
         # Unpack dicts in columns
         for column in ["likes", "comments", "reposts", "views"]:

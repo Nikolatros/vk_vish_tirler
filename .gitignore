@@ -1,3 +1,4 @@
 .env
 .dockerignore
 TODO.md
+__pycache__

@@ -1,4 +1,4 @@
-version: 3
+version: '3.8'
 
 name: vish_tirler
 
@@ -6,7 +6,7 @@ services:
   # Сервис для PostgreSQL
   db:
     image: postgres # имя образа postgres
-    container_name: postgers_db
+    container_name: postgres_db
     environment:
       POSTGRES_USER: tirler
       POSTGRES_PASSWORD: 1111
@@ -28,6 +28,7 @@ services:
     build: .
     container_name: tirler
     env_file: .env
+    working_dir: /app 
     depends_on:
       db:
         condition: service_healthy

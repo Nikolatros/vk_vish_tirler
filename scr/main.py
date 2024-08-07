@@ -2,6 +2,7 @@
 # GOT CONNETCTION
 from database import DBWriter
 from parser import Parser
+from time import sleep
 
 
 def main():
@@ -17,7 +18,9 @@ def main():
             posts = parser.parse_posts(conut=100, offset=offset)
             writer.insert_data(posts=posts)
             offset += 101
-        except:
+            sleep(0.6)
+        except Exception as exc:
+            print(exc)
             parsing = False
     else:
         writer.db_disconnect()
