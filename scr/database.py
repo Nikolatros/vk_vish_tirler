@@ -39,7 +39,7 @@ class DBWriter:
         Args:
             posts (pd.DataFrame): Data to insert
         """
-        print("Insreting data to databse...")
+        print("Inserting data to database...")
 
         # Check connection to database
         if not self.is_connected():
@@ -47,7 +47,7 @@ class DBWriter:
 
         columns = posts.columns
 
-        # Genearte insert query for postgresql table
+        # Generate insert query for postgresql table
         insert_query = f"INSERT INTO vish_posts ({', '.join(columns)}) \
             VALUES ({', '.join(['%s'] * len(columns))})"
 
