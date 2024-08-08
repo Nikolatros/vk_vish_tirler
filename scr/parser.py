@@ -45,10 +45,9 @@ class Parser:
         # Convert unix-date to datetime
         data_raw["date"] = pd.to_datetime(data_raw["date"], unit="s")
 
-        # Set datatype to columns with text
-        data_raw[["text", "post_type"]] = data_raw[["text", "post_type"]].astype(
-            "string"
-        )
+        # Set "string" datatype to columns with text
+        str_columns = ["text", "post_type"]
+        data_raw[str_columns] = data_raw[str_columns].astype("string")
 
         # List of useful columns to truncate dataframe
         columns = [
