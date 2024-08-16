@@ -49,7 +49,8 @@ class DBWriter:
 
         # Generate insert query for postgresql table
         insert_query = f"INSERT INTO vish_posts ({', '.join(columns)}) \
-            VALUES ({', '.join(['%s'] * len(columns))})"
+                VALUES ({', '.join(['%s'] * len(columns))}) \
+                ON CONFLICT (id) DO NOTHING"
 
         # Insert data to table
         self.cur.executemany(
